@@ -912,4 +912,13 @@ public abstract class BaseCommands implements CommandsInterface {
     public void unregisterForPcoData(Handler h) {
         mPcoDataRegistrants.remove(h);
     }
+
+    /**
+     * @hide
+     */
+    @Override
+    public int getLteOnGsmMode() {
+        return TelephonyManager.getLteOnGsmModeStatic();
+    }
+
 }
