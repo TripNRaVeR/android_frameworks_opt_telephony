@@ -1643,9 +1643,15 @@ public class DcTracker extends Handler {
                 str.append("emergency = true");
             }
 
+            // If this is a data retry, we should set the APN state to FAILED so it won't stay
+            // in SCANNING forever.
+            if (apnContext.getState() == DctConstants.State.SCANNING) {
+                apnContext.setState(DctConstants.State.FAILED);
+                str.append(" Stop retrying.");
+            }
+
             if (DBG) log(str.toString());
             apnContext.requestLog(str.toString());
-
             return false;
         }
     }
@@ -2507,7 +2513,6 @@ public class DcTracker extends Handler {
                 DctConstants.State state = apnContext.getState();
                 switch(state) {
                     case CONNECTING:
-                    case SCANNING:
                     case CONNECTED:
                     case DISCONNECTING:
                         // We're "READY" and active so just return
@@ -2517,6 +2522,7 @@ public class DcTracker extends Handler {
                     case IDLE:
                         // fall through: this is unexpected but if it happens cleanup and try setup
                     case FAILED:
+                    case SCANNING:
                     case RETRYING: {
                         // We're "READY" but not active so disconnect (cleanup = true) and
                         // connect (trySetup = true) to be sure we retry the connection.
